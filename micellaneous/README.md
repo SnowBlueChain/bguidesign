@@ -1,0 +1,13 @@
+# mentalMendingApp
+a mobile app base on gamification in order to help users confront their daily struggles
+
+dev log
+12 days remaining at date of writing this
+The app must have, as a bare minimun:
+- routing: create new battle, main battle hub, and the battle scenario
+- create new battle: name of the enemy and the emotion asociated
+- main battle hub: icons to select and resume current battles
+- battle scenario: player as a trail, enemy in the top with his idle animation, damage feedbacj, and attack of the enemy
+- logo and stable deploy
+
+2 days to develop each point
