@@ -1,10 +1,64 @@
 #:kivy 1.0.9
-<ScreenManager>:
-    canvas:
-        Rectangle:
-            pos: 0, root.center_y
-            size: self.width, 5
-    Label:
-        font_size: 70
-        text: "Esto es una prueba"
-        pos: root.center_x, root.center_y
+
+<Form>:
+    ToolBar:
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'top'
+
+        orientantion: 'vertical'
+        Label:
+            text: 'Soy screen1'
+            color: 255,0,0
+
+<MainHub>
+    ToolBar:
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'top'
+        orientantion: 'vertical'
+        Label:
+            text: 'Soy screen2'
+            color: 255,0,0
+<BossHub>
+    ToolBar:
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'top'
+        orientantion: 'vertical'
+        Label:
+            text: 'Soy screen3'
+            color: 255,0,0
+
+
+<ToolBar>
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'bottom'
+        MDToolbar:
+            md_bg_color: app.theme_cls.primary_dark
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'bottom'
+        MDFloatingActionButton:
+            icon: 'pencil'
+            user_font_size: "40sp"
+            md_bg_color: app.theme_cls.primary_light
+            on_press: app.load_page('form')
+
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'bottom'
+        MDIconButton:
+            icon: 'android'
+            user_font_size: "40sp"
+            md_bg_color: app.theme_cls.primary_light
+            on_press: app.load_page('mainhub')
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'bottom'
+        MDIconButton:
+            icon: 'language-python'
+            user_font_size: "40sp"
+            md_bg_color: app.theme_cls.primary_light
+            on_press: app.load_page('bosshub')
