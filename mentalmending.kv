@@ -1,64 +1,101 @@
 #:kivy 1.0.9
+#:include ui/form.kv
 
 <Form>:
+    FormBase:
     ToolBar:
-    AnchorLayout:
-        anchor_x: 'right'
-        anchor_y: 'top'
-
-        orientantion: 'vertical'
-        Label:
-            text: 'Soy screen1'
-            color: 255,0,0
+    Label:
+        text: 'Soy screen1'
+        color: [1, 1, 0, 1]
 
 <MainHub>
+    Label:
+        text: 'Soy screen2'
+        color: [1, 1, 0, 1]
     ToolBar:
-    AnchorLayout:
-        anchor_x: 'right'
-        anchor_y: 'top'
-        orientantion: 'vertical'
-        Label:
-            text: 'Soy screen2'
-            color: 255,0,0
+
 <BossHub>
     ToolBar:
-    AnchorLayout:
-        anchor_x: 'right'
-        anchor_y: 'top'
-        orientantion: 'vertical'
-        Label:
-            text: 'Soy screen3'
-            color: 255,0,0
-
+    Label:
+        text: 'Soy screen3'
+        color: [0, 1, 0, 1]
 
 <ToolBar>
-    AnchorLayout:
-        anchor_x: 'center'
-        anchor_y: 'bottom'
-        MDToolbar:
-            md_bg_color: app.theme_cls.primary_dark
-    AnchorLayout:
-        anchor_x: 'left'
-        anchor_y: 'bottom'
-        MDFloatingActionButton:
-            icon: 'pencil'
-            user_font_size: "40sp"
-            md_bg_color: app.theme_cls.primary_light
+    canvas:
+        Color:
+            rgba: [0.285, 0.29, 1, 0.8]
+        Rectangle:
+            size: root.width, (root.height / 10)
+            pos: self.pos
+    FloatLayout:
+        Button:
+            size_hint: None, None
+            size: 60 , (root.height / 10.5)
+            pos: (root.width / 20), 0
+            # background_color: 0, 0, 0, 0
+            background_normal: 'icons/add.png'
+            background_down: 'icons/add.png'
             on_press: app.load_page('form')
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
 
-    AnchorLayout:
-        anchor_x: 'center'
-        anchor_y: 'bottom'
-        MDIconButton:
-            icon: 'android'
-            user_font_size: "40sp"
-            md_bg_color: app.theme_cls.primary_light
+            # Image:
+            #     source: 'icons/add.png'
+
+        Button:
+            text: 'hola2'
+            size_hint: None, None
+            size: 60, (root.height / 10.5)
+            pos: (root.width / 2.6), 0
+            background_normal: 'icons/hub.png'
+            background_down: 'icons/hub.png'
             on_press: app.load_page('mainhub')
-    AnchorLayout:
-        anchor_x: 'right'
-        anchor_y: 'bottom'
-        MDIconButton:
-            icon: 'language-python'
-            user_font_size: "40sp"
-            md_bg_color: app.theme_cls.primary_light
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
+        Button:
+            size_hint: None, None
+            size: 60, (root.height / 10.5)
+            pos: (root.width / 1.4), 0
+            background_normal: 'icons/boss.png'
+            background_down: 'icons/boss.png'
             on_press: app.load_page('bosshub')
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
+# <ToolBar>
+#     ActionBar:
+#         pos_hint: {'bottom':1}
+#         ActionView:
+#             use_separator: True
+#             ActionPrevious:
+#                 title: 'Action Bar'
+#                 with_previous: False
+#             ActionOverflow:
+#             ActionButton:
+#                 important: True
+#                 text: 'Important'
+#             ActionButton:
+#                 text: 'Btn2'
+#             ActionButton:
+#                 text: 'Btn3'
+#             ActionButton:
+#                 text: 'Btn4'
+#             ActionGroup:
+#                 text: 'Group1'
+#                 ActionButton:
+#                     text: 'Btn5'
+#                 ActionButton:
+#                     text: 'Btn6'
+#                 ActionButton:
+#                     text: 'Btn7'
