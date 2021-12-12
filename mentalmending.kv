@@ -1,23 +1,24 @@
 #:kivy 1.0.9
 #:include ui/form.kv
+#:include ui/mainhub.kv
+#:include ui/bosshub.kv
 
 <Form>:
     FormBase:
     ToolBar:
-    Label:
-        text: 'Soy screen1'
-        color: [1, 1, 0, 1]
 
 <MainHub>
+    MainHubBase:
     Label:
         text: 'Soy screen2'
         color: [1, 1, 0, 1]
     ToolBar:
 
 <BossHub>
+    BossHubBase:
     ToolBar:
     Label:
-        text: 'Soy screen3'
+        text: 'En construcción'
         color: [0, 1, 0, 1]
 
 <ToolBar>
@@ -25,12 +26,12 @@
         Color:
             rgba: [0.285, 0.29, 1, 0.8]
         Rectangle:
-            size: root.width, (root.height / 10)
+            size: root.width, (root.height / 10) #15
             pos: self.pos
     FloatLayout:
         Button:
             size_hint: None, None
-            size: 60 , (root.height / 10.5)
+            size: 60 , (root.height / 10.5) #16
             pos: (root.width / 20), 0
             # background_color: 0, 0, 0, 0
             background_normal: 'icons/add.png'
@@ -47,10 +48,9 @@
             #     source: 'icons/add.png'
 
         Button:
-            text: 'hola2'
             size_hint: None, None
-            size: 60, (root.height / 10.5)
-            pos: (root.width / 2.6), 0
+            size: 60, (root.height / 10.5) #16
+            pos: (root.width / 2.35), 0
             background_normal: 'icons/hub.png'
             background_down: 'icons/hub.png'
             on_press: app.load_page('mainhub')
@@ -62,8 +62,8 @@
                     rectangle: self.x, self.y, self.width, self.height
         Button:
             size_hint: None, None
-            size: 60, (root.height / 10.5)
-            pos: (root.width / 1.4), 0
+            size: 60, (root.height / 10.5) #16
+            pos: (root.width / 1.3), 0
             background_normal: 'icons/boss.png'
             background_down: 'icons/boss.png'
             on_press: app.load_page('bosshub')
@@ -73,29 +73,3 @@
                 Line:
                     width: 2
                     rectangle: self.x, self.y, self.width, self.height
-# <ToolBar>
-#     ActionBar:
-#         pos_hint: {'bottom':1}
-#         ActionView:
-#             use_separator: True
-#             ActionPrevious:
-#                 title: 'Action Bar'
-#                 with_previous: False
-#             ActionOverflow:
-#             ActionButton:
-#                 important: True
-#                 text: 'Important'
-#             ActionButton:
-#                 text: 'Btn2'
-#             ActionButton:
-#                 text: 'Btn3'
-#             ActionButton:
-#                 text: 'Btn4'
-#             ActionGroup:
-#                 text: 'Group1'
-#                 ActionButton:
-#                     text: 'Btn5'
-#                 ActionButton:
-#                     text: 'Btn6'
-#                 ActionButton:
-#                     text: 'Btn7'

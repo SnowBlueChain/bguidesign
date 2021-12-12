@@ -1,8 +1,12 @@
 
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.uix.screenmanager import NoTransition, RiseInTransition, ScreenManager, Screen, SlideTransition, SwapTransition, WipeTransition
+from kivy.uix.screenmanager import ScreenManager, Screen, WipeTransition
+from kivy.core.text import LabelBase
+from kivy.properties import ObjectProperty
+from kivy.uix.spinner import Spinner
 
+LabelBase.register(name='pixel', fn_regular='micellaneous/pixel.ttf')
 
 class ToolBar(Screen):
     pass
@@ -12,18 +16,41 @@ class MainHub(Screen):
     pass
 class BossHub(Screen):
     pass
+# class MySpinnerOption(SpinnerOption):
+#     pass
 class FormBase(Widget):
+    name_input = ObjectProperty(None)
+    dropDown_button = ObjectProperty(None)
+    
+    def name_selection(self):
+        print(self.name_input.text)
+    def dropDown(self):
+        print('hola')
+    pass
+class EmotionPicker(Spinner):
+
+    def emotion_selection(self):
+        print(self.text)
+
+    pass
+
+
+class MainHubBase(Widget):
+    pass
+class BossHubBase(Widget):
     pass
 
 
 class MentalMendingApp(App):
-  
     def build(self):
         sm = ScreenManager()
-        sm = ScreenManager(transition=NoTransition())
+        sm = ScreenManager(transition=WipeTransition())
         sm.add_widget(Form(name='form'))
         sm.add_widget(MainHub(name='mainhub'))
         sm.add_widget(BossHub(name='bosshub'))
+
+        
+
         return sm
 
     def load_page(self, screen_name):
