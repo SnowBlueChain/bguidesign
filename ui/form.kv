@@ -3,6 +3,7 @@
 <FormBase>
     name_input: nameInput
     dropDown_button: mainButton
+    emotionSelector: emotionSelector
     canvas.before:
         Color:
             rgba: [0.95, 1, 1, 0.9]
@@ -49,6 +50,7 @@
             font_name:"pixel"
             font_size: root.height / 20
         EmotionPicker:
+            id: emotionSelector
             pos: (root.width/8), (root.height / 2.3)
             size: (root.width / 1.5),( root.height / 15)
             size_hint_y: None
@@ -62,6 +64,8 @@
             size: (root.width / 2.5), (root.height / 11)
             pos: (root.width/3.5), (root.height / 7)
             on_press: root.name_selection()         #root.test()
+            on_release: app.new_battle()
+            disabled: True if nameInput.text == '' or emotionSelector.text == 'Pick an emotion'  else False
             background_normal: ''
             background_color: 0, 0.47, 0, 1
             canvas.before:
@@ -88,7 +92,7 @@
     font_size: root.height / 1.5
     text: 'Pick an emotion'
     values: 'Anger', 'Sadness', 'Fear'
-    on_text: self.emotion_selection()
+    # on_text: self.emotion_selection()
     background_normal: ''
     background_color: 1, 1, 1, 0.5
     font_name: 'pixel'
