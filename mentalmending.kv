@@ -1,4 +1,4 @@
-#:kivy 1.0.9
+#:kivy 1.7.0
 #:include ui/form.kv
 #:include ui/mainhub.kv
 #:include ui/bosshub.kv
@@ -8,10 +8,9 @@
     ToolBar:
 
 <MainHub>
+    mainHubBase: mainHubBase
     MainHubBase:
-    Label:
-        text: 'Soy screen2'
-        color: [1, 1, 0, 1]
+        id: mainHubBase
     ToolBar:
 
 <BossHub>

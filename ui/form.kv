@@ -1,4 +1,4 @@
-#:kivy 1.0.9
+#:kivy 1.7.0
 #:import Factory kivy.factory.Factory
 <FormBase>
     name_input: nameInput
@@ -63,7 +63,7 @@
             size_hint: None, None
             size: (root.width / 2.5), (root.height / 11)
             pos: (root.width/3.5), (root.height / 7)
-            on_press: root.name_selection()         #root.test()
+            on_press: root.name_selection()
             on_release: app.new_battle()
             disabled: True if nameInput.text == '' or emotionSelector.text == 'Pick an emotion'  else False
             background_normal: ''
@@ -92,7 +92,6 @@
     font_size: root.height / 1.5
     text: 'Pick an emotion'
     values: 'Anger', 'Sadness', 'Fear'
-    # on_text: self.emotion_selection()
     background_normal: ''
     background_color: 1, 1, 1, 0.5
     font_name: 'pixel'
