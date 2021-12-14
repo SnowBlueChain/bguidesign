@@ -1,8 +1,60 @@
-#:kivy 1.0.9
+#:kivy 1.7.0
 <MainHubBase>
+    layout: stackLayout
     canvas.before:
         Color:
             rgba: [0.95, 1, 1, 0.9]
         Rectangle:
             size: self.size
             pos: self.pos
+    Label:
+        text: 'Active Battles'
+        color: (0, 0, 0, 1)
+        pos: (root.width/2.5), (root.height / 1.2)
+        font_name:"pixel"
+        font_size: root.height / 12
+    # FloatLayout:
+    StackLayout:
+        id: stackLayout
+        text: 'main'
+        pos: (root.width/15), 0
+        size: (root.width/1.1), (root.height/1.2)
+        spacing: (root.width / 10), (root.width / 10)
+        # size_hint: None, None
+        # size: root.width, 500
+        # orientation: 'lr-tb'
+        # size: (root.width), (root.height)
+        # pos: (root.width / 2), (root height / 2)
+<SelectEnemy>
+    Button:
+        text: root.enemyName
+        size: (root.mainHubBase.width / 4 ), (root.mainHubBase.width / 5)
+        size_hint: None, None
+        font_name: 'pixel'
+        background_normal: ''
+        background_color: 1, 1, 1, 0.5
+        color: 0, 0, 0, 1
+        text_size: (self.width - dp(10)), (self.height - dp(10))
+        halign: 'center'
+        valign: 'top'
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Line:
+                width: 2
+                rectangle: self.x, self.y, self.width, self.height
+    Image:
+        source: root.emotionIcon
+        size: (root.mainHubBase.width / 4 ), (root.mainHubBase.width / 5)
+        size_hint: None, None
+            
+
+    # Label:
+    #     text: 'Prueba'
+    #     pos: self.x, root.height / 2
+    #     font_name: 'pixel'
+    #     color: 0, 0, 0, 1
+    # Button:
+    #     text: 'Hola 2'
+#     Button:
+#         text: 'Hola'
