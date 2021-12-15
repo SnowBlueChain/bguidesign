@@ -5,8 +5,8 @@ dev log
 12 days remaining at date of writing this
 The app must have, as a bare minimun:
 - routing: create new battle, main battle hub, and the battle scenario (listo)
-- create new battle: name of the enemy and the emotion asociated
-- main battle hub: icons to select and resume current battles
+- create new battle: name of the enemy and the emotion asociated (listo)
+- main battle hub: icons to select and resume current battles (listo)
 - battle scenario: player as a trail, enemy in the top with his idle animation, damage feedback, and attack of the enemy
 - logo and stable deploy
 

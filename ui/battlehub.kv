@@ -1,0 +1,17 @@
+#:kivy 1.7.0
+<BattleHubBase>
+    canvas.before:
+        Color:
+            rgba: [0.95, 1, 1, 0.9]
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    FloatLayout:
+        Image:
+            source: root.enemySource
+            pos: (root.width /2.8), (root.height /1.5)
+        # Button:
+        #     text: 'a'
+        #     size_hint: None, None
+        #     size: root.size
+<BattleHubBaseAux>

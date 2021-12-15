@@ -2,6 +2,7 @@
 #:include ui/form.kv
 #:include ui/mainhub.kv
 #:include ui/bosshub.kv
+#:include ui/battlehub.kv
 
 <Form>:
     FormBase:
@@ -19,6 +20,13 @@
     Label:
         text: 'En construcción'
         color: [0, 1, 0, 1]
+
+<BattleHub>
+    battleHubBase: battleHubBase
+    BattleHubBase:
+        id: battleHubBase
+    BattleHubBaseAux:
+    ToolBar:
 
 <ToolBar>
     canvas:
