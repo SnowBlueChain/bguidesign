@@ -35,6 +35,7 @@
         background_color: 1, 1, 1, 0.5
         color: 0, 0, 0, 1
         text_size: (self.width - dp(10)), (self.height - dp(10))
+        on_press: app.load_battle(root.battleData)
         halign: 'center'
         valign: 'top'
         canvas.before:
@@ -47,8 +48,6 @@
         source: root.emotionIcon
         size: (root.mainHubBase.width / 4 ), (root.mainHubBase.width / 5)
         size_hint: None, None
-            
-
     # Label:
     #     text: 'Prueba'
     #     pos: self.x, root.height / 2
