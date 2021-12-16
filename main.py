@@ -1,5 +1,6 @@
 
 import os
+from random import random
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core import text
@@ -9,12 +10,10 @@ from kivy.core.text import LabelBase
 from kivy.properties import ObjectProperty, StringProperty, DictProperty
 from kivy.uix.spinner import Spinner
 from random import randint
-from random import random
 from kivy.uix.button import Button
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line
 
 LabelBase.register(name='pixel', fn_regular='micellaneous/pixel.ttf')
@@ -72,86 +71,16 @@ class SelectEnemy(RelativeLayout):
     mainHubBase = ObjectProperty(None)
     emotionIcon = StringProperty(None)
     battleData = DictProperty(None)
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     btn = Button(text=self.mainText, width=80, size_hint=(None, None))
+    #     self.add_widget(btn)
     pass
-
-class BattleHub(Screen):
-    battleHubBase = ObjectProperty(None)
-    pass
-class BattleHubBase(Widget):
-    global currentBattle
-    enemySource = StringProperty(None)
-    emotionKey = StringProperty(None)
-    enemyKey = StringProperty(None)
-
-    def initialize_battle(self):
-        self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
-        self.enemyKey = currentBattle['enemyKey']
-
-        #changing meanwhile we make the others sprites
-        self.emotionKey = 'AN'
-        self.enemyKey = 'AN2'
-
-
-    def update(self, dt):
-        self.updateFrame(dt)
-      
-        # print('llegó', dt)
-    
-    time = 0.0
-    rate = 0.2
-    frame = 1
-    def updateFrame(self, dt):
-        self.time += dt
-        if (self.time > self.rate):
-            self.time -= self.rate #"atlas://enemies/AN/AN2/AN2/frame"
-            self.enemySource = "atlas://enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame' + str(self.frame)
-            self.frame += 1
-            if (self.frame > 6):
-                self.frame = 1
-
-class BattleHubBaseAux(Widget):
-    lineBoolean = False
-    line = ''
-    def on_touch_down(self, touch):
-        if self.lineBoolean ==  False:
-            color = (random(), 1, 1)
-            with self.canvas:
-                Color(*color, mode='hsv')
-                
-                if self.lineBoolean ==  False:
-                    self.line = Line(points=(touch.x, touch.y), pointsize=5, width= 5, close= True)
-                    self.lineBoolean = True
-                    # touch.ud['line'] = self.line
-                # else:
-                #     touch.ud['line'].points += [touch.x, touch.y]
-                touch.ud['line'] = self.line
-        else:
-            touch.ud['line'] = self.line
-            for i in range(3):
-                touch.ud['line'].points += [touch.x, touch.y]
-                self.clearTail(touch)
-
-
-            
-    
-    # def on_touch_up(self, *touch):
-    #     self.canvas.clear()
-   
-    def on_touch_move(self, touch):
-        touch.ud['line'].points += [touch.x, touch.y]
-
-        self.clearTail(touch)
-   
-    def clearTail(self, touch):
-        touch.ud['line'].points = touch.ud['line'].points[-10:]
-
 
 class BossHub(Screen):
     pass
 class BossHubBase(Widget):
     pass
-
-
 class Form(Screen):
     pass
 class FormBase(Widget):
@@ -189,6 +118,74 @@ class EmotionPicker(Spinner):
         newBattle['emotion'] = self.text
         print(self.text, newBattle)
 
+class SelectEnemy(RelativeLayout):
+    enemyName = StringProperty(None)
+    mainHubBase = ObjectProperty(None)
+    emotionIcon = StringProperty(None)
+    battleData = DictProperty(None)
+    pass
+
+class BattleHub(Screen):
+    battleHubBase = ObjectProperty(None)
+    pass
+
+class BattleHubBase(Widget):
+    global currentBattle
+    enemySource = StringProperty(None)
+    emotionKey = StringProperty(None)
+    enemyKey = StringProperty(None)
+
+    def initialize_battle(self):
+        self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
+        self.enemyKey = currentBattle['enemyKey']
+
+
+        self.emotionKey = 'AN'
+        self.enemyKey = 'AN2'
+
+    def update(self, dt):
+        self.updateFrame(dt)
+
+    time = 0.0
+    rate = 0.2
+    frame = 1
+    def updateFrame(self, dt):
+        androidPath = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
+        enemySourceAux = 'atlas://' + androidPath
+       
+        self.time += dt
+        if (self.time > self.rate):
+            self.time -= self.rate 
+
+            self.enemySource = enemySourceAux + str(self.frame)
+            self.frame += 1
+            if (self.frame > 6):
+                self.frame = 1
+class BattleHubBaseAux(Widget):
+    lineBoolean = False
+    line = ''
+    def on_touch_down(self, touch):
+        if self.lineBoolean ==  False:
+            color = (random(), 1, 1)
+            with self.canvas:
+                Color(*color, mode='hsv')
+                
+                if self.lineBoolean ==  False:
+                    self.line = Line(points=(touch.x, touch.y), pointsize=5, width= 5, close= True)
+                    self.lineBoolean = True
+                touch.ud['line'] = self.line
+        else:
+            touch.ud['line'] = self.line
+            for i in range(3):
+                touch.ud['line'].points += [touch.x, touch.y]
+                self.clearTail(touch)
+
+    def on_touch_move(self, touch):
+        touch.ud['line'].points += [touch.x, touch.y]
+        self.clearTail(touch)
+   
+    def clearTail(self, touch):
+        touch.ud['line'].points = touch.ud['line'].points[-10:]
 class MentalMendingApp(App):
 
     def build(self):
@@ -199,10 +196,13 @@ class MentalMendingApp(App):
         sm.add_widget(BossHub(name='bosshub'))
         sm.add_widget(BattleHub(name='battlehub'))
         self.get_screens(sm)
+
+       
         return sm
 
     def load_page(self, screen_name):
         self.root.current = screen_name
+    
     def load_battle(self, battleData):
         global currentBattle
         global battlescreen
@@ -211,17 +211,16 @@ class MentalMendingApp(App):
         battlescreen.battleHubBase.initialize_battle()
         self.root.current = 'battlehub'
         Clock.schedule_interval(battlescreen.battleHubBase.update, 1.0/60.0)
+        # Clock.schedule_interval(battlescreen.battleHubBase.update, 1.0/60.0)
         print(currentBattle)
 
     def new_battle(self):
         global activeBattles
         global newBattle
         global homescreen
-      
         activeBattles.append(newBattle)
         newBattle = {}
         homescreen.mainHubBase.add_MainHubBattles()
-       
         self.load_page('mainhub')
         print(activeBattles)
     
@@ -236,7 +235,6 @@ class MentalMendingApp(App):
             print(storedBattle)
             activeBattles.append(storedBattle)
             homescreen.mainHubBase.add_MainHubBattles()
-             # Clock.schedule_once(lambda dt: self.add_MainHubBattles())
 
    
 
