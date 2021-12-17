@@ -1,5 +1,6 @@
 #:kivy 1.7.0
 <BattleHubBase>
+    enemy: enemy
     canvas.before:
         Color:
             rgba: [0.95, 1, 1, 0.9]
@@ -10,8 +11,20 @@
         Image:
             source: root.enemySource
             pos: (root.width /2.8), (root.height /1.5)
+            id: enemy
+            # size_hint: None, None
+            # size: (root.width / 2), (root.height / 2)
+
         # Button:
         #     text: 'a'
         #     size_hint: None, None
         #     size: root.size
 <BattleHubBaseAux>
+    hitbox: hitbox
+    Button:
+        pos: (root.touch_X - dp(5)), (root.touch_Y - dp(5))
+        background_color: 0, 0, 0, 0
+        id: hitbox
+        size_hint: None, None
+        size: (dp(9), dp(9))
+

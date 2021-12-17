@@ -7,7 +7,7 @@ from kivy.core import text
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import ScreenManager, Screen, WipeTransition
 from kivy.core.text import LabelBase
-from kivy.properties import ObjectProperty, StringProperty, DictProperty
+from kivy.properties import ObjectProperty, StringProperty, DictProperty, NumericProperty, BooleanProperty
 from kivy.uix.spinner import Spinner
 from random import randint
 from kivy.uix.button import Button
@@ -134,6 +134,15 @@ class BattleHubBase(Widget):
     enemySource = StringProperty(None)
     emotionKey = StringProperty(None)
     enemyKey = StringProperty(None)
+    enemy = ObjectProperty(None)
+    hitBoolean = BooleanProperty(False)
+    frameRefreshBoolean = BooleanProperty(False)
+
+    time = 0.0
+    rate = 0.15
+    frame = 1
+    currentFrame = 1
+    cycleCounter = 0
 
     def initialize_battle(self):
         self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
@@ -144,26 +153,61 @@ class BattleHubBase(Widget):
         self.enemyKey = 'AN2'
 
     def update(self, dt):
-        self.updateFrame(dt)
+        if self.hitBoolean == False:
+            self.updateFrame(dt)
+        elif self.hitBoolean == True:
+            self.updateHitFrame(dt)
+            
 
-    time = 0.0
-    rate = 0.2
-    frame = 1
+   
     def updateFrame(self, dt):
-        androidPath = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
-        enemySourceAux = 'atlas://' + androidPath
+        path = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
+        enemySourceAux = 'atlas://' + path
        
         self.time += dt
         if (self.time > self.rate):
             self.time -= self.rate 
-
+            
+            if self.frame !=0:
+                self.currentFrame = self.frame
             self.enemySource = enemySourceAux + str(self.frame)
+            self.frame = self.currentFrame
             self.frame += 1
+            
+            self.cycleCounter += 1
             if (self.frame > 6):
                 self.frame = 1
+
+            if self.cycleCounter > 1:
+                self.cycleCounter = 0
+                self.frameRefreshBoolean = True
+
+
+    def updateHitFrame(self, dt):
+        path = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
+        enemySourceAux = 'atlas://' + path
+
+        self.time += dt
+        if (self.time > (self.rate / 4)):
+            self.time -= (self.rate / 4)
+            
+           
+            self.enemySource = enemySourceAux + str(self.currentFrame)
+            self.frame += 1
+            if (self.frame > 0):
+                self.frame = 0
+                self.cycleCounter += 1
+            if self.cycleCounter > 0:
+                self.cycleCounter = 0
+                # self.frame = self.currentFrame
+                self.hitBoolean = False
+
 class BattleHubBaseAux(Widget):
+    hitbox = ObjectProperty(None)
     lineBoolean = False
     line = ''
+    touch_X = NumericProperty(0)
+    touch_Y = NumericProperty(0)
     def on_touch_down(self, touch):
         if self.lineBoolean ==  False:
             color = (random(), 1, 1)
@@ -171,18 +215,32 @@ class BattleHubBaseAux(Widget):
                 Color(*color, mode='hsv')
                 
                 if self.lineBoolean ==  False:
-                    self.line = Line(points=(touch.x, touch.y), pointsize=5, width= 5, close= True)
+                    self.line = Line(points=(touch.x, touch.y), pointsize=5, width= 10, close= True)
                     self.lineBoolean = True
+                self.line.close = True
+                self.touch_X = touch.x
+                self.touch_Y = touch.y
                 touch.ud['line'] = self.line
         else:
             touch.ud['line'] = self.line
+            self.touch_X = touch.x
+            self.touch_Y = touch.y
             for i in range(3):
                 touch.ud['line'].points += [touch.x, touch.y]
                 self.clearTail(touch)
 
     def on_touch_move(self, touch):
-        touch.ud['line'].points += [touch.x, touch.y]
-        self.clearTail(touch)
+        if touch.ud:
+            self.line.close = False
+            touch.ud['line'].points += [touch.x, touch.y]
+            self.clearTail(touch)
+            self.touch_X = touch.x
+            self.touch_Y = touch.y
+        if self.hitbox.collide_widget(self.parent.battleHubBase.enemy):
+            if self.parent.battleHubBase.hitBoolean == False and  self.parent.battleHubBase.frameRefreshBoolean == True:
+                self.parent.battleHubBase.hitBoolean = True
+                self.parent.battleHubBase.frameRefreshBoolean = False
+            
    
     def clearTail(self, touch):
         touch.ud['line'].points = touch.ud['line'].points[-10:]
