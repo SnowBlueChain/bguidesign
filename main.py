@@ -15,6 +15,7 @@ from kivy.storage.jsonstore import JsonStore
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Color, Line
+from kivy.core.audio import SoundLoader
 
 LabelBase.register(name='pixel', fn_regular='micellaneous/pixel.ttf')
 
@@ -139,10 +140,11 @@ class BattleHubBase(Widget):
     frameRefreshBoolean = BooleanProperty(False)
 
     time = 0.0
-    rate = 0.15
+    rate = 0.1
     frame = 1
     currentFrame = 1
     cycleCounter = 0
+
 
     def initialize_battle(self):
         self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
@@ -208,6 +210,8 @@ class BattleHubBaseAux(Widget):
     line = ''
     touch_X = NumericProperty(0)
     touch_Y = NumericProperty(0)
+    currentHitAudio = 1
+
     def on_touch_down(self, touch):
         if self.lineBoolean ==  False:
             color = (random(), 1, 1)
@@ -240,10 +244,19 @@ class BattleHubBaseAux(Widget):
             if self.parent.battleHubBase.hitBoolean == False and  self.parent.battleHubBase.frameRefreshBoolean == True:
                 self.parent.battleHubBase.hitBoolean = True
                 self.parent.battleHubBase.frameRefreshBoolean = False
-            
+                self.hitAudio()
+               
    
     def clearTail(self, touch):
         touch.ud['line'].points = touch.ud['line'].points[-10:]
+
+    def hitAudio(self):
+        if self.currentHitAudio > 9:
+            self.currentHitAudio = 1
+        soundPath = 'audio/hit/' + str(self.currentHitAudio) + '.wav'
+        sound = SoundLoader.load(soundPath)
+        sound.play()
+        self.currentHitAudio += 1
 class MentalMendingApp(App):
 
     def build(self):
