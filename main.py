@@ -1,13 +1,15 @@
 
 import os
 from random import random
+from kivy.vector import Vector
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core import text
+from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import ScreenManager, Screen, WipeTransition
 from kivy.core.text import LabelBase
-from kivy.properties import ObjectProperty, StringProperty, DictProperty, NumericProperty, BooleanProperty
+from kivy.properties import ObjectProperty, StringProperty, DictProperty, NumericProperty, BooleanProperty, ReferenceListProperty
 from kivy.uix.spinner import Spinner
 from random import randint
 from kivy.uix.button import Button
@@ -24,9 +26,6 @@ newBattle = {}
 homescreen = ''
 battlescreen = ''
 currentBattle = {}
-# def fully_qualified_path(filename):
-#     path = os.path.dirname(os.path.abspath(__file__))
-#     return os.path.join(path, filename)
 jsonPath = os.path.join((os.path.dirname(os.path.abspath(__file__))), 'localData/activeBattles.json')
 store = JsonStore(jsonPath)
 
@@ -41,18 +40,8 @@ class MainHubBase(Widget):
     layout = ObjectProperty(None)
     global store
 
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
-        # self.layout = ObjectProperty(None)
-        # for storedBattles in store:
-        #     storedBattle = store.get(storedBattles)
-        #     print(storedBattle)
-        #     activeBattles.append(storedBattle)
-            # Clock.schedule_once(lambda dt: self.add_MainHubBattles())
-
     def add_MainHubBattles(self):   
         self.layout.clear_widgets()
-        # store.clear()
         for battle in activeBattles:
            
             store.put(battle['enemyName'], enemyName=battle['enemyName'], emotion=battle['emotion']
@@ -61,21 +50,12 @@ class MainHubBase(Widget):
             btn = SelectEnemy(size_hint=(None, None), enemyName=battle['enemyName'], mainHubBase = self.layout
             , emotionIcon = emotionIconAux, battleData = battle)
             self.layout.add_widget(btn)
-            # btn = Button(text=str(numIndex), width=80, size_hint=(None, None))
-            # self.layout.add_widget(btn)
-        # for battle in range(50):
-        #     numIndex += 1
-        #     btn = Button(text=str(numIndex), width=80, size_hint=(None, None))
-        #     self.layout.add_widget(btn)
+
 class SelectEnemy(RelativeLayout):
     enemyName = StringProperty(None)
     mainHubBase = ObjectProperty(None)
     emotionIcon = StringProperty(None)
     battleData = DictProperty(None)
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
-    #     btn = Button(text=self.mainText, width=80, size_hint=(None, None))
-    #     self.add_widget(btn)
     pass
 
 class BossHub(Screen):
@@ -128,6 +108,7 @@ class SelectEnemy(RelativeLayout):
 
 class BattleHub(Screen):
     battleHubBase = ObjectProperty(None)
+    
     pass
 
 class BattleHubBase(Widget):
@@ -138,6 +119,9 @@ class BattleHubBase(Widget):
     enemy = ObjectProperty(None)
     hitBoolean = BooleanProperty(False)
     frameRefreshBoolean = BooleanProperty(False)
+    battleHubBaseAux = ObjectProperty(None)
+    widgetToDelete = ObjectProperty(None)
+    deleteBoolean = BooleanProperty(False)
 
     time = 0.0
     rate = 0.1
@@ -154,14 +138,27 @@ class BattleHubBase(Widget):
         self.emotionKey = 'AN'
         self.enemyKey = 'AN2'
 
+        for i in range(1, 4):
+            projectile = enemyAttack(source='icons/AN64.png' , vel=(i, i), pos=(20, 20))
+            self.add_widget(projectile)
+
+            Clock.schedule_interval(projectile.bulletUpdate, 1.0/60.0)
+            
+
     def update(self, dt):
         if self.hitBoolean == False:
             self.updateFrame(dt)
         elif self.hitBoolean == True:
             self.updateHitFrame(dt)
-            
+        if self.deleteBoolean == True:
+            self.deleteWidget(self.widgetToDelete)
+            self.deleteBoolean = False
 
-   
+    def deleteWidget(self, widget):
+        self.remove_widget(widget)
+        self.widgetToDelete = ObjectProperty(None)
+                
+
     def updateFrame(self, dt):
         path = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
         enemySourceAux = 'atlas://' + path
@@ -201,13 +198,43 @@ class BattleHubBase(Widget):
                 self.cycleCounter += 1
             if self.cycleCounter > 0:
                 self.cycleCounter = 0
-                # self.frame = self.currentFrame
                 self.hitBoolean = False
+class enemyAttack(Image):
+    id = StringProperty(None)
+    vel_X = NumericProperty(0)
+    vel_Y = NumericProperty(0)
+    vel = ReferenceListProperty(vel_X, vel_Y)
 
+    def bulletUpdate(self, dt):
+        self.move()
+        self.removeBullet()
+            
+        
+    def removeBullet(self):
+        if self.parent:
+            if self.parent.battleHubBaseAux.hitbox.collide_widget(self):
+                self.parent.widgetToDelete = self
+                self.parent.deleteBoolean = True
+            # this two make the bullet dissappear when touching the borders of the screen
+            if self.x > self.parent.width or self.x < self.parent.x:
+                self.parent.widgetToDelete = self
+                self.parent.deleteBoolean = True
+            if self.top > self.parent.top or self.y < self.parent.y:
+                self.parent.widgetToDelete = self
+                self.parent.deleteBoolean = True
+    
+
+    def move(self):
+        self.pos = Vector(*self.vel) + self.pos
+
+
+
+        
+        
 class BattleHubBaseAux(Widget):
     hitbox = ObjectProperty(None)
     lineBoolean = False
-    line = ''
+    line = ObjectProperty(None)
     touch_X = NumericProperty(0)
     touch_Y = NumericProperty(0)
     currentHitAudio = 1
@@ -245,6 +272,8 @@ class BattleHubBaseAux(Widget):
                 self.parent.battleHubBase.hitBoolean = True
                 self.parent.battleHubBase.frameRefreshBoolean = False
                 self.hitAudio()
+        # if self.hitbox.collide_widget(enemyAttack):
+        #     print('colision')
                
    
     def clearTail(self, touch):
