@@ -1,5 +1,6 @@
 
 import os
+import math
 from random import random
 from kivy.vector import Vector
 from kivy.app import App
@@ -18,6 +19,9 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Color, Line
 from kivy.core.audio import SoundLoader
+# from kivy.core.window import Window
+
+# Window.size = (550, 650)
 
 LabelBase.register(name='pixel', fn_regular='micellaneous/pixel.ttf')
 
@@ -122,7 +126,16 @@ class BattleHubBase(Widget):
     battleHubBaseAux = ObjectProperty(None)
     widgetToDelete = ObjectProperty(None)
     deleteBoolean = BooleanProperty(False)
-
+    turnBoolean = BooleanProperty(True) #True = player turn, False = Enemy turn
+    attackCompleted = BooleanProperty(False)
+    shieldTransparency = NumericProperty(0)
+    backgroundColorR = NumericProperty(0.95)
+    backgroundColorG = NumericProperty(1)
+    backgroundColorB = NumericProperty(1)
+    hitA = NumericProperty(0)
+    backgroundCycle = 0
+    backgroundBoolean = False
+    damageBoolean = False
     time = 0.0
     rate = 0.1
     frame = 1
@@ -134,18 +147,13 @@ class BattleHubBase(Widget):
         self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
         self.enemyKey = currentBattle['enemyKey']
 
-
+        # meanwhile we only have one enemy
         self.emotionKey = 'AN'
         self.enemyKey = 'AN2'
-
-        for i in range(1, 4):
-            projectile = enemyAttack(source='icons/AN64.png' , vel=(i, i), pos=(20, 20))
-            self.add_widget(projectile)
-
-            Clock.schedule_interval(projectile.bulletUpdate, 1.0/60.0)
             
 
     def update(self, dt):
+        self.turnManager(dt)
         if self.hitBoolean == False:
             self.updateFrame(dt)
         elif self.hitBoolean == True:
@@ -153,6 +161,10 @@ class BattleHubBase(Widget):
         if self.deleteBoolean == True:
             self.deleteWidget(self.widgetToDelete)
             self.deleteBoolean = False
+   
+    def checkChildren(self):
+        if (len(self.children) <= 2) and self.turnBoolean == False:
+            self.turnBoolean = True
 
     def deleteWidget(self, widget):
         self.remove_widget(widget)
@@ -199,20 +211,122 @@ class BattleHubBase(Widget):
             if self.cycleCounter > 0:
                 self.cycleCounter = 0
                 self.hitBoolean = False
+    
+    def turnManager(self, dt): 
+        if self.turnBoolean == False:
+           self.startAttackAnimation(dt)
+           
+           
+        if self.turnBoolean == True:
+            self.hitA = 0
+            self.startPlayerTurn()
+            
+
+    def startPlayerTurn(self):
+        # self.turnBoolean = True
+        self.attackCompleted = False
+        self.shieldTransparency = 0
+        self.damageBoolean = False
+
+    def enemyAttack(self, dt):
+        if self.attackCompleted == False:
+            
+            for i in range(1, 8):
+                directionAux = 1
+                initial_xAux = 10
+                if i % 2 == 0:
+                    directionAux = -1
+                    initial_xAux = 500
+                projectile = enemyAttack(source='icons/AN64.png' ,initial_y = (i*50) ,
+                movement= 2, initial_x = initial_xAux, x_speed = i /2,
+                 direction = directionAux)
+                self.add_widget(projectile)
+                Clock.schedule_interval(projectile.bulletUpdate, 1.0/60.0)
+        
+        else:
+            self.checkChildren()
+            self.checkDamage(dt)
+        
+        self.attackCompleted = True
+
+    backgroundCycleCounter = 0
+    def startAttackAnimation(self, dt):
+        if self.backgroundBoolean == True:
+            if self.backgroundCycle == 0:
+                self.backgroundColorB -=0.02 * 100 * dt
+                if self.backgroundColorB <= 0.5:
+                    self.backgroundCycle = 1
+                    self.backgroundCycleCounter += 1
+                    
+            if self.backgroundCycle == 1:
+                self.backgroundColorB +=0.02 * 100 * dt
+                if self.backgroundColorB >= 1:
+                    self.backgroundCycle = 0
+                    self.backgroundCycleCounter += 1
+            if self.backgroundCycleCounter >= 6:
+                self.backgroundBoolean = False
+                self.backgroundCycleCounter = 0
+            
+            
+            # self.backgroundAnimation(0.2, 6, False, False, True, 'warning' ,dt)
+                # sound = SoundLoader.load('audio/hit/9.wav')
+                # sound.play()
+        else:
+            self.enemyAttack(dt)
+            
+
+    damageCycle = 0
+    damageCycleCounter = 0
+
+    def checkDamage(self, dt):
+        if self.damageBoolean == True:
+            if self.damageCycle == 0:
+                self.hitA +=0.03 * 100 * dt
+                if self.hitA >= 0.5:
+                    self.damageCycle = 1
+                    self.damageCycleCounter += 1
+                    
+            if self.damageCycleCounter == 1:
+                self.hitA -=0.03 * 100 * dt
+                if self.hitA <= 0.0:
+                    self.damageCycle = 0
+                    self.damageCycleCounter += 1
+            if self.damageCycleCounter >= 2:
+                self.damageBoolean = False
+                self.damageCycleCounter = 0
+
+bulletHitAudioCounter = 1
 class enemyAttack(Image):
     id = StringProperty(None)
     vel_X = NumericProperty(0)
     vel_Y = NumericProperty(0)
     vel = ReferenceListProperty(vel_X, vel_Y)
+    movement = NumericProperty(0)
+    initial_x = NumericProperty(0)
+    initial_y= NumericProperty(0)
+    x_speed = NumericProperty(0)
+    direction = NumericProperty(0)
+    time = 0.0
+    rate = 0.03
+
 
     def bulletUpdate(self, dt):
-        self.move()
+        self.time += dt
+        if (self.time > self.rate):
+            self.time -= self.rate 
+            if self.movement == 1:
+                self.linearMovement()
+            if self.movement == 2:
+                self.sinMovement(dt)
         self.removeBullet()
             
         
     def removeBullet(self):
         if self.parent:
             if self.parent.battleHubBaseAux.hitbox.collide_widget(self):
+                if self.parent.damageBoolean == False:
+                    self.parent.damageBoolean = True
+                    self.playerHitAudio()
                 self.parent.widgetToDelete = self
                 self.parent.deleteBoolean = True
             # this two make the bullet dissappear when touching the borders of the screen
@@ -224,8 +338,23 @@ class enemyAttack(Image):
                 self.parent.deleteBoolean = True
     
 
-    def move(self):
+    def linearMovement(self):
         self.pos = Vector(*self.vel) + self.pos
+    
+    def sinMovement(self, dt):
+        y_value =  (100*math.sin(self.initial_x/20 - 10) +self.initial_y)
+        self.pos = Vector(self.initial_x, y_value)
+        self.initial_x += self.x_speed * self.direction * dt * 50
+
+    def playerHitAudio(self):
+        global bulletHitAudioCounter
+        if bulletHitAudioCounter > 3:
+            bulletHitAudioCounter = 1
+        soundPath = 'audio/playerHit/' + str(bulletHitAudioCounter) + '.wav'
+        sound = SoundLoader.load(soundPath)
+        sound.play()
+        bulletHitAudioCounter += 1
+
 
 
 
@@ -238,6 +367,9 @@ class BattleHubBaseAux(Widget):
     touch_X = NumericProperty(0)
     touch_Y = NumericProperty(0)
     currentHitAudio = 1
+    currentShieldHitAudio = 1
+    hitCounter = 0
+
 
     def on_touch_down(self, touch):
         if self.lineBoolean ==  False:
@@ -267,13 +399,22 @@ class BattleHubBaseAux(Widget):
             self.clearTail(touch)
             self.touch_X = touch.x
             self.touch_Y = touch.y
+        self.collisionWithEnemy()
+       
+    def collisionWithEnemy(self):
         if self.hitbox.collide_widget(self.parent.battleHubBase.enemy):
-            if self.parent.battleHubBase.hitBoolean == False and  self.parent.battleHubBase.frameRefreshBoolean == True:
-                self.parent.battleHubBase.hitBoolean = True
+            if self.parent.battleHubBase.turnBoolean == True:
+                if self.parent.battleHubBase.hitBoolean == False and  self.parent.battleHubBase.frameRefreshBoolean == True:
+                    self.parent.battleHubBase.hitBoolean = True
+                    self.parent.battleHubBase.frameRefreshBoolean = False
+                    self.hitAudio()
+                    self.endPlayerTurn()
+            elif self.parent.battleHubBase.frameRefreshBoolean == True:
                 self.parent.battleHubBase.frameRefreshBoolean = False
-                self.hitAudio()
-        # if self.hitbox.collide_widget(enemyAttack):
-        #     print('colision')
+                self.shieldHit()
+                if self.parent.battleHubBase.shieldTransparency <= 0.7:
+                    self.parent.battleHubBase.shieldTransparency +=0.1 
+                Clock.schedule_once(self.shieldAnimation, 3)
                
    
     def clearTail(self, touch):
@@ -286,6 +427,41 @@ class BattleHubBaseAux(Widget):
         sound = SoundLoader.load(soundPath)
         sound.play()
         self.currentHitAudio += 1
+
+       
+    def shieldAnimation(self, dt):
+        if self.parent.battleHubBase.shieldTransparency >= 0.5:
+            self.parent.battleHubBase.shieldTransparency -=0.2 
+
+    
+    def shieldHit(self):
+        if self.currentShieldHitAudio > 2:
+            self.currentShieldHitAudio = 1
+        soundPath = 'audio/shieldHit/' + str(self.currentShieldHitAudio) + '.wav'
+        sound = SoundLoader.load(soundPath)
+        sound.play()
+        self.currentShieldHitAudio +=1
+        
+
+    def endPlayerTurn(self):
+        if self.hitCounter > 8:
+            self.hitCounter = 0
+        self.hitCounter += 1
+        if self.parent.battleHubBase.turnBoolean == True and self.hitCounter > 8:
+            
+            
+            self.parent.battleHubBase.turnBoolean = False
+            self.parent.battleHubBase.backgroundBoolean = True
+            Clock.schedule_once(self.deployShield, 1)
+            # sound = SoundLoader.load('audio/shieldHit/3.wav')
+            # sound.play()
+
+    def deployShield(self, dt):
+        self.parent.battleHubBase.shieldTransparency = 0.5
+       
+       
+        
+        
 class MentalMendingApp(App):
 
     def build(self):

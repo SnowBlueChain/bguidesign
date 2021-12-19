@@ -3,15 +3,30 @@
     enemy: enemy
     canvas.before:
         Color:
-            rgba: [0.95, 1, 1, 0.9]
+            rgba: [self.backgroundColorR, self.backgroundColorG, self.backgroundColorB, 0.9]
         Rectangle:
             size: self.size
             pos: self.pos
+    canvas.after:
+        Color:
+            rgba: [0.95, 0, 1, root.shieldTransparency]
+        Ellipse:
+            pos: (root.width /3), (root.height /1.6)
+            size: (root.width/4), (root.width/4)
+    canvas:
+        Color:
+            rgba: [1, 0, 0, self.hitA]
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
     FloatLayout:
         Image:
             source: root.enemySource
             pos: (root.width /2.8), (root.height /1.5)
             id: enemy
+
             # size_hint: None, None
             # size: (root.width / 2), (root.height / 2)
 
