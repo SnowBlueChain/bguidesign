@@ -30,8 +30,27 @@ newBattle = {}
 homescreen = ''
 battlescreen = ''
 currentBattle = {}
+currentIndex = -1
 jsonPath = os.path.join((os.path.dirname(os.path.abspath(__file__))), 'localData/activeBattles.json')
 store = JsonStore(jsonPath)
+clock = ''
+finishEnemyBoolean = False
+
+musicList = []
+currentMusic = ''
+
+for i in range (1, 4):
+    musicSelector = i
+    musicPath = 'audio/music/' + str(musicSelector) + '.wav'
+    print('music', musicPath)
+    backgroundMusic = SoundLoader.load(musicPath)
+    backgroundMusic.loop = True
+
+   
+    musicList.append(backgroundMusic)
+    print(musicList, 'aqui')
+finalTouch = SoundLoader.load('audio/hit/gg.wav')
+
 
 
 class ToolBar(Screen):
@@ -112,12 +131,14 @@ class SelectEnemy(RelativeLayout):
 
 class BattleHub(Screen):
     battleHubBase = ObjectProperty(None)
+    mainHub = ObjectProperty(None)
     
     pass
 
 class BattleHubBase(Widget):
     global currentBattle
     enemySource = StringProperty(None)
+    enemyName = StringProperty(None)
     emotionKey = StringProperty(None)
     enemyKey = StringProperty(None)
     enemy = ObjectProperty(None)
@@ -144,23 +165,37 @@ class BattleHubBase(Widget):
 
 
     def initialize_battle(self):
+        global activeBattles
+        print (activeBattles)
+        global finishEnemyBoolean
+        finishEnemyBoolean == False
+        self.enemy.pos = (self.width/ 2.8, self.height /1.5)
         self.emotionKey = currentBattle['enemyKey'][0]+currentBattle['enemyKey'][1]
         self.enemyKey = currentBattle['enemyKey']
+        self.enemyName = currentBattle['enemyName']
 
         # meanwhile we only have one enemy
         self.emotionKey = 'AN'
         self.enemyKey = 'AN2'
-            
 
+        
     def update(self, dt):
-        self.turnManager(dt)
-        if self.hitBoolean == False:
-            self.updateFrame(dt)
-        elif self.hitBoolean == True:
-            self.updateHitFrame(dt)
-        if self.deleteBoolean == True:
-            self.deleteWidget(self.widgetToDelete)
-            self.deleteBoolean = False
+        global finishEnemyBoolean
+        if finishEnemyBoolean == False:
+            self.turnManager(dt)
+            if self.hitBoolean == False:
+                self.updateFrame(dt)
+            elif self.hitBoolean == True:
+                self.updateHitFrame(dt)
+            if self.deleteBoolean == True:
+                self.deleteWidget(self.widgetToDelete)
+                self.deleteBoolean = False
+        else:
+            if self.hitBoolean == False:
+                self.updateFrame(dt)
+            elif self.hitBoolean == True:
+                self.updateHitFrame(dt)
+            self.checkDamage(dt)
    
     def checkChildren(self):
         if (len(self.children) <= 2) and self.turnBoolean == False:
@@ -195,6 +230,7 @@ class BattleHubBase(Widget):
 
 
     def updateHitFrame(self, dt):
+        global finishEnemyBoolean
         path = os.path.join((os.path.dirname(os.path.abspath(__file__))), ("enemies/"+ self.emotionKey + '/' + self.enemyKey + '/' + self.enemyKey + '/frame'))
         enemySourceAux = 'atlas://' + path
 
@@ -202,7 +238,7 @@ class BattleHubBase(Widget):
         if (self.time > (self.rate / 4)):
             self.time -= (self.rate / 4)
             
-           
+            
             self.enemySource = enemySourceAux + str(self.currentFrame)
             self.frame += 1
             if (self.frame > 0):
@@ -224,6 +260,11 @@ class BattleHubBase(Widget):
 
     def startPlayerTurn(self):
         # self.turnBoolean = True
+        self.battleHubBaseAux.buttonsBoolean = True
+        if self.battleHubBaseAux.hideButtons == 0:
+            self.battleHubBaseAux.hideButtons = 1
+            self.battleHubBaseAux.endFight.text = 'End It!'
+            self.battleHubBaseAux.pauseFight.text = 'Pause'
         self.attackCompleted = False
         self.shieldTransparency = 0
         self.damageBoolean = False
@@ -265,12 +306,7 @@ class BattleHubBase(Widget):
                     self.backgroundCycleCounter += 1
             if self.backgroundCycleCounter >= 6:
                 self.backgroundBoolean = False
-                self.backgroundCycleCounter = 0
-            
-            
-            # self.backgroundAnimation(0.2, 6, False, False, True, 'warning' ,dt)
-                # sound = SoundLoader.load('audio/hit/9.wav')
-                # sound.play()
+                self.backgroundCycleCounter = 0     
         else:
             self.enemyAttack(dt)
             
@@ -369,9 +405,16 @@ class BattleHubBaseAux(Widget):
     currentHitAudio = 1
     currentShieldHitAudio = 1
     hitCounter = 0
+    pauseFight = ObjectProperty(None)
+    endFight = ObjectProperty(None)
+    buttonsBoolean = ObjectProperty(True)
+    hideButtons = NumericProperty(0)
+
+ 
 
 
     def on_touch_down(self, touch):
+    
         if self.lineBoolean ==  False:
             color = (random(), 1, 1)
             with self.canvas:
@@ -391,6 +434,11 @@ class BattleHubBaseAux(Widget):
             for i in range(3):
                 touch.ud['line'].points += [touch.x, touch.y]
                 self.clearTail(touch)
+        if self.buttonsBoolean == True:
+            if self.endFight.collide_widget(self.hitbox):
+                self.finishFight()
+            if self.pauseFight.collide_widget(self.hitbox):
+                self.stopFight()
 
     def on_touch_move(self, touch):
         if touch.ud:
@@ -400,33 +448,71 @@ class BattleHubBaseAux(Widget):
             self.touch_X = touch.x
             self.touch_Y = touch.y
         self.collisionWithEnemy()
-       
+
     def collisionWithEnemy(self):
+        global finishEnemyBoolean
         if self.hitbox.collide_widget(self.parent.battleHubBase.enemy):
             if self.parent.battleHubBase.turnBoolean == True:
                 if self.parent.battleHubBase.hitBoolean == False and  self.parent.battleHubBase.frameRefreshBoolean == True:
                     self.parent.battleHubBase.hitBoolean = True
                     self.parent.battleHubBase.frameRefreshBoolean = False
                     self.hitAudio()
-                    self.endPlayerTurn()
+                    if finishEnemyBoolean == False:
+                        self.endPlayerTurn()
             elif self.parent.battleHubBase.frameRefreshBoolean == True:
-                self.parent.battleHubBase.frameRefreshBoolean = False
-                self.shieldHit()
-                if self.parent.battleHubBase.shieldTransparency <= 0.7:
-                    self.parent.battleHubBase.shieldTransparency +=0.1 
-                Clock.schedule_once(self.shieldAnimation, 3)
+                if finishEnemyBoolean == False:
+                    self.parent.battleHubBase.frameRefreshBoolean = False
+                    self.shieldHit()
+                    if self.parent.battleHubBase.shieldTransparency <= 0.7:
+                        self.parent.battleHubBase.shieldTransparency +=0.1 
+                    Clock.schedule_once(self.shieldAnimation, 3)
                
    
     def clearTail(self, touch):
         touch.ud['line'].points = touch.ud['line'].points[-10:]
 
+    
+    finishFightCycle = 0
     def hitAudio(self):
-        if self.currentHitAudio > 9:
-            self.currentHitAudio = 1
-        soundPath = 'audio/hit/' + str(self.currentHitAudio) + '.wav'
-        sound = SoundLoader.load(soundPath)
-        sound.play()
-        self.currentHitAudio += 1
+        global finishEnemyBoolean
+        global finalTouch
+        if finishEnemyBoolean == False:
+            if self.currentHitAudio > 9:
+                self.currentHitAudio = 1
+            soundPath = 'audio/hit/' + str(self.currentHitAudio) + '.wav'
+            sound = SoundLoader.load(soundPath)
+            sound.play()
+            self.currentHitAudio += 1
+        else: 
+            if self.finishFightCycle < 3:
+                if self.currentHitAudio > 9:
+                    self.currentHitAudio = 1
+                    self.finishFightCycle += 1
+                  
+            else:
+                self.currentHitAudio = 9
+                self.finishFightCycle += 1
+            soundPath = 'audio/hit/' + str(self.currentHitAudio) + '.wav'
+            sound = SoundLoader.load(soundPath)
+            sound.play()
+            
+            if finalTouch.get_pos() == 0:
+                if self.finishFightCycle == 5:
+                    finalTouch.play()
+                elif  self.finishFightCycle > 10 and finalTouch.state == 'stop':
+                    self.stopFight()
+
+            self.parent.battleHubBase.damageBoolean = True
+            self.currentHitAudio += 1
+            posx = self.parent.battleHubBase.enemy.pos[0]
+            posy = self.parent.battleHubBase.enemy.pos[1]
+            posx = randint(math.floor(posx - 50), math.floor(posx +50))
+            posy = randint(math.floor(posy - 50), math.floor(posy +50))
+            if posx > self.parent.battleHubBase.width -100 or posx < self.parent.battleHubBase.pos[0] +100:
+                posx = self.parent.battleHubBase.width/ 2.8
+            if posy > self.parent.battleHubBase.height -100 or posy < self.parent.battleHubBase.pos[1] +100:
+                posy = self.parent.battleHubBase.height /1.5
+            self.parent.battleHubBase.enemy.pos = (posx, posy)
 
        
     def shieldAnimation(self, dt):
@@ -444,24 +530,59 @@ class BattleHubBaseAux(Widget):
         
 
     def endPlayerTurn(self):
+        global finishEnemyBoolean
         if self.hitCounter > 8:
             self.hitCounter = 0
         self.hitCounter += 1
         if self.parent.battleHubBase.turnBoolean == True and self.hitCounter > 8:
-            
-            
+            self.hideButton()
             self.parent.battleHubBase.turnBoolean = False
             self.parent.battleHubBase.backgroundBoolean = True
-            Clock.schedule_once(self.deployShield, 1)
-            # sound = SoundLoader.load('audio/shieldHit/3.wav')
-            # sound.play()
+            if finishEnemyBoolean == False:
+                Clock.schedule_once(self.deployShield, 1)
+
 
     def deployShield(self, dt):
         self.parent.battleHubBase.shieldTransparency = 0.5
-       
-       
+
+    def hideButton(self):
+        self.buttonsBoolean = False
+        self.hideButtons = 0
+        self.endFight.text = ''
+        self.pauseFight.text = ''
+
+    
+    def stopFight(self):
+        global currentMusic
+        global clock
+        global store
+        global activeBattles
+        global currentIndex
+        global homescreen
+        currentMusic.stop()
+        global finishEnemyBoolean
+        if finishEnemyBoolean == True:
+            store.delete(self.parent.battleHubBase.enemyName)
+            del activeBattles[currentIndex]
+            homescreen.mainHubBase.add_MainHubBattles()
+            
+            
+        finishEnemyBoolean = False
+        self.parent.parent.current = 'mainhub'
         
+        self.parent.battleHubBase.cycleCounter = 0
+        self.finishFightCycle = 0
+        clock.cancel()
+    
+    def finishFight(self):
+        global finishEnemyBoolean
+        finishEnemyBoolean = True
+        self.hideButton()
         
+
+
+    
+clockBoolean = False
 class MentalMendingApp(App):
 
     def build(self):
@@ -482,14 +603,29 @@ class MentalMendingApp(App):
     def load_battle(self, battleData):
         global currentBattle
         global battlescreen
+        global activeBattles
+        global currentIndex
 
         currentBattle = battleData
+        currentIndex = activeBattles.index(battleData)
+        print (currentIndex)
         battlescreen.battleHubBase.initialize_battle()
         self.root.current = 'battlehub'
-        Clock.schedule_interval(battlescreen.battleHubBase.update, 1.0/60.0)
-        # Clock.schedule_interval(battlescreen.battleHubBase.update, 1.0/60.0)
-        print(currentBattle)
+        global clock 
+        clock = Clock.schedule_interval(battlescreen.battleHubBase.update, 1.0/60.0)
+        
+        Clock.schedule_once(self.startMusic, 0)
 
+        print(currentBattle)
+        
+    def startMusic(self, dt):
+        i = randint(0, 2)
+        global musicList
+        global currentMusic
+        currentMusic = musicList[i]
+        musicList[i].play()
+
+    
     def new_battle(self):
         global activeBattles
         global newBattle
@@ -498,6 +634,7 @@ class MentalMendingApp(App):
         newBattle = {}
         homescreen.mainHubBase.add_MainHubBattles()
         self.load_page('mainhub')
+        
         print(activeBattles)
     
     def get_screens(self, sm):
@@ -511,6 +648,8 @@ class MentalMendingApp(App):
             print(storedBattle)
             activeBattles.append(storedBattle)
             homescreen.mainHubBase.add_MainHubBattles()
+    
+
 
    
 

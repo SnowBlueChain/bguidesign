@@ -36,9 +36,37 @@
         #     size: root.size
 <BattleHubBaseAux>
     hitbox: hitbox
+    endFight: endFight
+    pauseFight: pauseFight
     Button:
         pos: (root.touch_X - dp(5)), (root.touch_Y - dp(5))
         background_color: 0, 0, 0, 0
         id: hitbox
         size_hint: None, None
         size: (dp(9), dp(9))
+    AnchorLayout:
+        size: root.width, root.height
+        anchor_x:"left"
+        anchor_y:"bottom"
+        Button:
+            id: endFight
+            text: 'End It!'
+            color: [1, 1, 1, 1]
+            size_hint: None, None
+            size: (dp(100), dp(100))
+            disabled: False if root.buttonsBoolean == True else True
+            background_color: [0.285, 0.29, 1, root.hideButtons]
+            font_name: 'pixel'
+    AnchorLayout:
+        size: root.width, root.height
+        anchor_x:"right"
+        anchor_y:"bottom"
+        Button:
+            id: pauseFight
+            text: 'Pause'
+            color: [1, 1, 1, 1]
+            size_hint: None, None
+            size: (dp(100), dp(100))
+            disabled: False if root.buttonsBoolean == True else True
+            background_color: [0.285, 0.29, 1, root.hideButtons]
+            font_name: 'pixel'
