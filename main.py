@@ -138,6 +138,7 @@ class BattleHub(Screen):
 class BattleHubBase(Widget):
     global currentBattle
     enemySource = StringProperty(None)
+    bulletSource = StringProperty(None)
     enemyName = StringProperty(None)
     emotionKey = StringProperty(None)
     enemyKey = StringProperty(None)
@@ -176,7 +177,8 @@ class BattleHubBase(Widget):
 
         # meanwhile we only have one enemy
         self.emotionKey = 'AN'
-        self.enemyKey = 'AN2'
+        self.enemyKey = 'AN1'
+        self.bulletSource = 'enemies/'+self.emotionKey+'/'+self.enemyKey+'/'+'bullet.png'
 
         
     def update(self, dt):
@@ -221,7 +223,7 @@ class BattleHubBase(Widget):
             self.frame += 1
             
             self.cycleCounter += 1
-            if (self.frame > 6):
+            if (self.frame > 10):
                 self.frame = 1
 
             if self.cycleCounter > 1:
@@ -259,7 +261,6 @@ class BattleHubBase(Widget):
             
 
     def startPlayerTurn(self):
-        # self.turnBoolean = True
         self.battleHubBaseAux.buttonsBoolean = True
         if self.battleHubBaseAux.hideButtons == 0:
             self.battleHubBaseAux.hideButtons = 1
@@ -271,24 +272,78 @@ class BattleHubBase(Widget):
 
     def enemyAttack(self, dt):
         if self.attackCompleted == False:
-            
-            for i in range(1, 8):
-                directionAux = 1
-                initial_xAux = 10
-                if i % 2 == 0:
+            attackIndex = randint(1, 5)
+            # attackIndex = 1
+            if attackIndex == 1:
+                for i in range(1, 12):
+                    directionAux = 1
+                    initial_xAux = self.width/15
+                    if i % 2 == 0:
+                        directionAux = -1
+                        initial_xAux = self.width/1.1
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = 4, 
+                    direction = directionAux, width = (self.width/15), height = (self.width/15) )
+                    self.startAttack(projectile)
+                
+            if attackIndex == 2:
+                for i in range(1, 12):
+                    directionAux = 1
+                    initial_xAux = self.width/15
+                    if i % 2 == 0:
+                        directionAux = -1
+                        initial_xAux = self.width/1.1
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = 4, 
+                    direction = directionAux, width = (self.width/15), height = (self.width/15) )
+                    self.startAttack(projectile)
+            if attackIndex == 3:
+                for i in range(1, 12):
+                    directionAux = 1
+                    initial_xAux = self.width/15
+                    offset_xAux = i*2
+                    if i % 2 == 0:
+                        directionAux = -1
+                        initial_xAux = self.width/1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = 5, offset_x=offset_xAux, 
+                    direction = directionAux, width = (self.width/15), height = (self.width/15) )
+                    self.startAttack(projectile)
+            if attackIndex == 4:
+                for i in range(1, 12):
+                    directionAux = 1
+                    x_speedAux = 4
+                    initial_xAux = self.width/15
+                    offset_xAux = i*2
+                    if i % 2 == 0:
+                        x_speedAux = x_speedAux/1.5
+                        # initial_xAux = self.width/1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x=offset_xAux, 
+                    direction = directionAux, width = (self.width/15), height = (self.width/10) )
+                    self.startAttack(projectile)
+            if attackIndex == 5:
+                for i in range(1, 12):
                     directionAux = -1
-                    initial_xAux = 500
-                projectile = enemyAttack(source='icons/AN64.png' ,initial_y = (i*50) ,
-                movement= 2, initial_x = initial_xAux, x_speed = i /2,
-                 direction = directionAux)
-                self.add_widget(projectile)
-                Clock.schedule_interval(projectile.bulletUpdate, 1.0/60.0)
-        
+                    x_speedAux = 4
+                    initial_xAux = self.width/1.2
+                    offset_xAux = i*2
+                    if i % 2 == 0:
+                        x_speedAux = x_speedAux/1.5
+                        # initial_xAux = self.width/1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x=offset_xAux, 
+                    direction = directionAux, width = (self.width/15), height = (self.width/10) )
+                    self.startAttack(projectile)
+                
         else:
             self.checkChildren()
-            self.checkDamage(dt)
-        
+            self.checkDamage(dt)    
         self.attackCompleted = True
+
+    def startAttack(self, projectile):
+        self.add_widget(projectile)
+        Clock.schedule_interval(projectile.bulletUpdate, 1.0/60.0)
 
     backgroundCycleCounter = 0
     def startAttackAnimation(self, dt):
@@ -339,7 +394,8 @@ class enemyAttack(Image):
     vel = ReferenceListProperty(vel_X, vel_Y)
     movement = NumericProperty(0)
     initial_x = NumericProperty(0)
-    initial_y= NumericProperty(0)
+    offset_y = NumericProperty(0)
+    offset_x = NumericProperty(0)
     x_speed = NumericProperty(0)
     direction = NumericProperty(0)
     time = 0.0
@@ -351,9 +407,11 @@ class enemyAttack(Image):
         if (self.time > self.rate):
             self.time -= self.rate 
             if self.movement == 1:
-                self.linearMovement()
+                self.sinMovementVertical(dt)
             if self.movement == 2:
                 self.sinMovement(dt)
+            if self.movement == 3 or self.movement == 4  or self.movement == 5:
+                self.exponentialMovement(dt)
         self.removeBullet()
             
         
@@ -378,7 +436,15 @@ class enemyAttack(Image):
         self.pos = Vector(*self.vel) + self.pos
     
     def sinMovement(self, dt):
-        y_value =  (100*math.sin(self.initial_x/20 - 10) +self.initial_y)
+        y_value =  (100*math.sin(self.initial_x/20 - 10) +self.offset_y)
+        self.pos = Vector(self.initial_x, y_value)
+        self.initial_x += self.x_speed * self.direction * dt * 50
+    def sinMovementVertical(self, dt):
+        y_value =  (100*math.sin(self.initial_x/20 - 10) +self.offset_y)
+        self.pos = Vector(y_value, self.initial_x)
+        self.initial_x += self.x_speed * self.direction * dt * 50
+    def exponentialMovement(self, dt):
+        y_value = ((self.initial_x-self.offset_x)*(self.initial_x-self.offset_x)/1500)+self.offset_y
         self.pos = Vector(self.initial_x, y_value)
         self.initial_x += self.x_speed * self.direction * dt * 50
 

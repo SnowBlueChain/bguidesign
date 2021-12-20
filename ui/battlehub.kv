@@ -11,8 +11,8 @@
         Color:
             rgba: [0.95, 0, 1, root.shieldTransparency]
         Ellipse:
-            pos: (root.width /3), (root.height /1.6)
-            size: (root.width/4), (root.width/4)
+            pos: (root.width /4.1), (root.height /1.6)
+            size: (root.width / 1.8), (root.height / 2.5)
     canvas:
         Color:
             rgba: [1, 0, 0, self.hitA]
@@ -24,10 +24,11 @@
     FloatLayout:
         Image:
             source: root.enemySource
-            pos: (root.width /2.8), (root.height /1.5)
+            pos: (root.width /4), (root.height /1.5)
+            size: (root.width / 2), (root.height / 3)
             id: enemy
 
-            # size_hint: None, None
+            size_hint: None, None
             # size: (root.width / 2), (root.height / 2)
 
         # Button:
@@ -57,6 +58,12 @@
             disabled: False if root.buttonsBoolean == True else True
             background_color: [0.285, 0.29, 1, root.hideButtons]
             font_name: 'pixel'
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, root.hideButtons
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
     AnchorLayout:
         size: root.width, root.height
         anchor_x:"right"
@@ -70,3 +77,9 @@
             disabled: False if root.buttonsBoolean == True else True
             background_color: [0.285, 0.29, 1, root.hideButtons]
             font_name: 'pixel'
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, root.hideButtons
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height

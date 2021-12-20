@@ -10,9 +10,9 @@
     Label:
         text: 'Active Battles'
         color: (0, 0, 0, 1)
-        pos: (root.width/2.5), (root.height / 1.2)
+        pos: (root.width/2.6), (root.height / 1.2)
         font_name:"pixel"
-        font_size: root.height / 12
+        font_size: root.width / 10
     # FloatLayout:
     StackLayout:
         id: stackLayout
@@ -46,7 +46,9 @@
                 rectangle: self.x, self.y, self.width, self.height
     Image:
         source: root.emotionIcon
-        size: (root.mainHubBase.width / 4 ), (root.mainHubBase.width / 5)
+        # size: (root.mainHubBase.width / 4 ), (root.mainHubBase.width / 5)
+        width: root.mainHubBase.width / 4
+        height: root.mainHubBase.width / 7
         size_hint: None, None
     # Label:
     #     text: 'Prueba'
