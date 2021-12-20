@@ -19,9 +19,7 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Color, Line
 from kivy.core.audio import SoundLoader
-# from kivy.core.window import Window
-
-# Window.size = (550, 650)
+from kivy.core.window import Window
 
 LabelBase.register(name='pixel', fn_regular='micellaneous/pixel.ttf')
 
@@ -42,13 +40,11 @@ currentMusic = ''
 for i in range (1, 4):
     musicSelector = i
     musicPath = 'audio/music/' + str(musicSelector) + '.wav'
-    print('music', musicPath)
     backgroundMusic = SoundLoader.load(musicPath)
     backgroundMusic.loop = True
 
    
     musicList.append(backgroundMusic)
-    print(musicList, 'aqui')
 finalTouch = SoundLoader.load('audio/hit/gg.wav')
 
 
@@ -99,7 +95,6 @@ class FormBase(Widget):
         self.emotionSelector.emotion_selection()
         self.select_enemy(self.emotionSelector.text)
         self.emotionSelector.text = 'Pick an emotion'
-        print(self.name_input.text, newBattle)
     
     def select_enemy(self, emotion):
         global newBattle
@@ -120,7 +115,6 @@ class EmotionPicker(Spinner):
     def emotion_selection(self):
         global newBattle
         newBattle['emotion'] = self.text
-        print(self.text, newBattle)
 
 class SelectEnemy(RelativeLayout):
     enemyName = StringProperty(None)
@@ -148,7 +142,7 @@ class BattleHubBase(Widget):
     battleHubBaseAux = ObjectProperty(None)
     widgetToDelete = ObjectProperty(None)
     deleteBoolean = BooleanProperty(False)
-    turnBoolean = BooleanProperty(True) #True = player turn, False = Enemy turn
+    turnBoolean = BooleanProperty(True) 
     attackCompleted = BooleanProperty(False)
     shieldTransparency = NumericProperty(0)
     backgroundColorR = NumericProperty(0.95)
@@ -167,7 +161,6 @@ class BattleHubBase(Widget):
 
     def initialize_battle(self):
         global activeBattles
-        print (activeBattles)
         global finishEnemyBoolean
         finishEnemyBoolean == False
         self.enemy.pos = (self.width/ 2.8, self.height /1.5)
@@ -175,7 +168,6 @@ class BattleHubBase(Widget):
         self.enemyKey = currentBattle['enemyKey']
         self.enemyName = currentBattle['enemyName']
 
-        # meanwhile we only have one enemy
         self.emotionKey = 'AN'
         self.enemyKey = 'AN1'
         self.bulletSource = 'enemies/'+self.emotionKey+'/'+self.enemyKey+'/'+'bullet.png'
@@ -272,8 +264,7 @@ class BattleHubBase(Widget):
 
     def enemyAttack(self, dt):
         if self.attackCompleted == False:
-            attackIndex = randint(1, 5)
-            # attackIndex = 1
+            attackIndex = randint(1, 11)
             if attackIndex == 1:
                 for i in range(1, 12):
                     directionAux = 1
@@ -306,18 +297,17 @@ class BattleHubBase(Widget):
                         directionAux = -1
                         initial_xAux = self.width/1.5
                     projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
-                    movement= attackIndex, initial_x = initial_xAux, x_speed = 5, offset_x=offset_xAux, 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = 6, offset_x=offset_xAux, 
                     direction = directionAux, width = (self.width/15), height = (self.width/15) )
                     self.startAttack(projectile)
             if attackIndex == 4:
                 for i in range(1, 12):
                     directionAux = 1
-                    x_speedAux = 4
+                    x_speedAux = 5
                     initial_xAux = self.width/15
                     offset_xAux = i*2
                     if i % 2 == 0:
                         x_speedAux = x_speedAux/1.5
-                        # initial_xAux = self.width/1.5
                     projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
                     movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x=offset_xAux, 
                     direction = directionAux, width = (self.width/15), height = (self.width/10) )
@@ -325,15 +315,80 @@ class BattleHubBase(Widget):
             if attackIndex == 5:
                 for i in range(1, 12):
                     directionAux = -1
-                    x_speedAux = 4
+                    x_speedAux = 5
                     initial_xAux = self.width/1.2
                     offset_xAux = i*2
                     if i % 2 == 0:
                         x_speedAux = x_speedAux/1.5
-                        # initial_xAux = self.width/1.5
                     projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
                     movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x=offset_xAux, 
                     direction = directionAux, width = (self.width/15), height = (self.width/10) )
+                    self.startAttack(projectile)
+            if attackIndex == 6:
+                for i in range(1, 20):
+                    directionAux = -1
+                    initial_xAux = self.width/0.8
+                    x_speedAux = 3
+                    if i % 2 == 0:
+                        x_speedAux = 3*1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, 
+                    direction = directionAux, width = (self.width/18), height = (self.width/18) )
+                    self.startAttack(projectile)
+            if attackIndex == 7:
+                for i in range(1, 20):
+                    directionAux = 1
+                    initial_xAux = self.width/15
+                    x_speedAux = 3
+                    if i % 2 == 0:
+                        x_speedAux = 3*1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, 
+                    direction = directionAux, width = (self.width/18), height = (self.width/18) )
+                    self.startAttack(projectile)
+            if attackIndex == 8:
+                for i in range(1, 20):
+                    directionAux = 1
+                    initial_xAux = self.width/15
+                    x_speedAux = 3
+                    if i % 2 == 0:
+                        x_speedAux = 3*1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, 
+                    direction = directionAux, width = (self.width/18), height = (self.width/18) )
+                    self.startAttack(projectile)
+            if attackIndex == 9:
+                for i in range(1, 20):
+                    directionAux = -1
+                    initial_xAux = self.width/1.1
+                    x_speedAux = 3
+                    if i % 2 == 0:
+                        x_speedAux = 3*1.5
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = (i*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, 
+                    direction = directionAux, width = (self.width/18), height = (self.width/18) )
+                    self.startAttack(projectile)
+            if attackIndex == 10:
+                for i in range(1, 12):
+                    directionAux = 1
+                    initial_xAux = self.width/25
+                    x_speedAux = 6
+                    offset_xAux = i*(self.width/10)
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = ((self.height/1.8)+(i/2)*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x = offset_xAux,
+                    direction = directionAux, width = (self.width/10), height = (self.width/10) )
+                    self.startAttack(projectile)
+            if attackIndex == 11:
+                for i in range(1, 12):
+                    directionAux = 1
+                    initial_xAux = self.width/25
+                    x_speedAux = 6
+                    offset_xAux = i*(self.width/10)
+                    if i % 2 == 0:
+                        x_speedAux = x_speedAux/1.3
+                    projectile = enemyAttack(size_hint=(None, None), source=self.bulletSource ,offset_y = ((self.height/1.8)+(i/2)*self.height/15) , 
+                    movement= attackIndex, initial_x = initial_xAux, x_speed = x_speedAux, offset_x = offset_xAux,
+                    direction = directionAux, width = (self.width/10), height = (self.width/10) )
                     self.startAttack(projectile)
                 
         else:
@@ -406,12 +461,14 @@ class enemyAttack(Image):
         self.time += dt
         if (self.time > self.rate):
             self.time -= self.rate 
-            if self.movement == 1:
+            if self.movement == 1 or self.movement == 6 or self.movement == 7:
                 self.sinMovementVertical(dt)
-            if self.movement == 2:
+            if self.movement == 2 or self.movement == 8 or self.movement == 9:
                 self.sinMovement(dt)
             if self.movement == 3 or self.movement == 4  or self.movement == 5:
                 self.exponentialMovement(dt)
+            if self.movement == 10 or self.movement == 11:
+                self.inverseMovement(dt)
         self.removeBullet()
             
         
@@ -423,11 +480,10 @@ class enemyAttack(Image):
                     self.playerHitAudio()
                 self.parent.widgetToDelete = self
                 self.parent.deleteBoolean = True
-            # this two make the bullet dissappear when touching the borders of the screen
-            if self.x > self.parent.width or self.x < self.parent.x:
+            if self.x > self.parent.width +100 or self.x < self.parent.x -100:
                 self.parent.widgetToDelete = self
                 self.parent.deleteBoolean = True
-            if self.top > self.parent.top or self.y < self.parent.y:
+            if self.top > self.parent.top +100 or self.y < self.parent.y - 100:
                 self.parent.widgetToDelete = self
                 self.parent.deleteBoolean = True
     
@@ -447,7 +503,10 @@ class enemyAttack(Image):
         y_value = ((self.initial_x-self.offset_x)*(self.initial_x-self.offset_x)/1500)+self.offset_y
         self.pos = Vector(self.initial_x, y_value)
         self.initial_x += self.x_speed * self.direction * dt * 50
-
+    def inverseMovement(self, dt):
+        y_value = (15000/(self.initial_x-self.offset_x))+self.offset_y
+        self.pos = Vector(self.initial_x, y_value)
+        self.initial_x += self.x_speed * self.direction * dt * 50
     def playerHitAudio(self):
         global bulletHitAudioCounter
         if bulletHitAudioCounter > 3:
@@ -572,8 +631,8 @@ class BattleHubBaseAux(Widget):
             self.currentHitAudio += 1
             posx = self.parent.battleHubBase.enemy.pos[0]
             posy = self.parent.battleHubBase.enemy.pos[1]
-            posx = randint(math.floor(posx - 50), math.floor(posx +50))
-            posy = randint(math.floor(posy - 50), math.floor(posy +50))
+            posx = randint(math.floor(posx - 50), math.floor(posx +25))
+            posy = randint(math.floor(posy - 50), math.floor(posy +25))
             if posx > self.parent.battleHubBase.width -100 or posx < self.parent.battleHubBase.pos[0] +100:
                 posx = self.parent.battleHubBase.width/ 2.8
             if posy > self.parent.battleHubBase.height -100 or posy < self.parent.battleHubBase.pos[1] +100:
@@ -652,6 +711,7 @@ clockBoolean = False
 class MentalMendingApp(App):
 
     def build(self):
+        Window.bind(on_keyboard=self.Android_back_click)
         sm = ScreenManager()
         sm = ScreenManager(transition=WipeTransition())
         sm.add_widget(MainHub(name='mainhub'))
@@ -674,7 +734,6 @@ class MentalMendingApp(App):
 
         currentBattle = battleData
         currentIndex = activeBattles.index(battleData)
-        print (currentIndex)
         battlescreen.battleHubBase.initialize_battle()
         self.root.current = 'battlehub'
         global clock 
@@ -682,7 +741,6 @@ class MentalMendingApp(App):
         
         Clock.schedule_once(self.startMusic, 0)
 
-        print(currentBattle)
         
     def startMusic(self, dt):
         i = randint(0, 2)
@@ -701,7 +759,6 @@ class MentalMendingApp(App):
         homescreen.mainHubBase.add_MainHubBattles()
         self.load_page('mainhub')
         
-        print(activeBattles)
     
     def get_screens(self, sm):
         global homescreen
@@ -711,11 +768,18 @@ class MentalMendingApp(App):
         battlescreen = sm.get_screen('battlehub')
         for storedBattles in store:
             storedBattle = store.get(storedBattles)
-            print(storedBattle)
             activeBattles.append(storedBattle)
             homescreen.mainHubBase.add_MainHubBattles()
     
-
+    def Android_back_click(self, window, key, *largs):
+        global battlescreen
+        if key == 27:
+            if self.root.current != 'battlehub':
+                self.load_page('mainhub')
+            else:
+                battlescreen.battleHubBase.battleHubBaseAux.stopFight()
+        return True
+               
 
    
 
